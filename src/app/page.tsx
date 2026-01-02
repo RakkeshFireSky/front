@@ -1,66 +1,69 @@
-import Image from "next/image";
-import styles from "./page.module.css";
+"use client";
 
+import { useRouter } from "next/navigation";
+import Style from "./page.module.css";
+import Logo from '../../public/logo.png'
+import Image from "next/image";
 export default function Home() {
+  const redirect = useRouter();
   return (
-    <div className={styles.page}>
-      <main className={styles.main}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className={styles.intro}>
-          <h1>To get started, edit the page.tsx file.</h1>
-          <p>
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
+    <>
+      <div className={Style.main}>
+        <div className={Style.topbar}>
+          <div>
+            <Image src={Logo} alt="Logo" />
+          </div>
+          <div>
+            <button
+              className={Style.login}
+              onClick={() => redirect.push("/sign-in")}
             >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Learning
-            </a>{" "}
-            center.
+              Login
+            </button>
+          </div>
+        </div>
+
+        {/* MAIN */}
+        <div className={Style.Content}>
+          <h1>MERN + AI</h1>
+          <h2>Future Tech Stacks</h2>
+
+          <p className={Style.description}>
+            Build powerful, scalable, and intelligent web applications using the
+            MERN Stack combined with Artificial Intelligence. This modern tech
+            stack helps developers stay ahead in the fast-evolving software
+            industry.
           </p>
+
+          <div className={Style.features}>
+            <div className={Style.card}>
+              <h3>🚀 Full Stack Development</h3>
+              <p>
+                Learn MongoDB, Express.js, React, and Node.js to build complete
+                end-to-end web applications.
+              </p>
+            </div>
+
+            <div className={Style.card}>
+              <h3>🤖 AI Integration</h3>
+              <p>
+                Integrate AI features like Chatbots, Recommendation Systems,
+                Text Summarization, and Automation using modern AI APIs.
+              </p>
+            </div>
+
+            <div className={Style.card}>
+              <h3>💼 Career-Focused Skills</h3>
+              <p>
+                Gain real-world project experience and industry-ready skills
+                required for modern Full Stack & AI developer roles.
+              </p>
+            </div>
+          </div>
+
+          <button className={Style.cta} onClick={() => redirect.push("/sign-up")}>Get Started Today</button>
         </div>
-        <div className={styles.ctas}>
-          <a
-            className={styles.primary}
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className={styles.logo}
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className={styles.secondary}
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
-    </div>
+      </div>
+    </>
   );
 }
