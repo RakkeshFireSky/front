@@ -15,11 +15,6 @@ export default function TextSummarize() {
   const [loading, setLoading] = useState(false);
   const { user, logout }: any = useAuth()!;
   const router = useRouter();
-  useEffect(() => {
-    if (!user) {
-      router.push("/sign-in");
-    } 
-  }, [user]);
   console.log("users", user);
   const handleSummarize = async () => {
     try {
