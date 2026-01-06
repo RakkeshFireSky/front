@@ -1,9 +1,10 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
+// @ts-ignore
 
 export function middleware(req: NextRequest) {
   const token = req.cookies.get("accessToken")?.value;
-    console.log("Middleware Token:", token);
+  console.log("Middleware Token:", token);
   const isAuthPage = req.nextUrl.pathname.startsWith("/sign-in");
   const isProtectedRoute = req.nextUrl.pathname.startsWith("/text-summarize");
 
