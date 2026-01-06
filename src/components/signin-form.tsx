@@ -13,7 +13,7 @@ import { Input } from "@/components/ui/input";
 import Auth from "./assets/auth.jpeg";
 import Image from "next/image";
 import Link from "next/link";
-import React, { useActionState, useState } from "react";
+import React, { useActionState, useEffect, useState } from "react";
 import axios from "axios";
 import { useRouter } from "next/navigation";
 import { coreAPI } from "../../lib/coreAPI";
@@ -70,9 +70,12 @@ export function SigninForm({
 
   const router = useRouter();
 
-  if (state.success) {
-    router.push("/text-summarize");
-  }
+  useEffect(() => {
+      if (state.success) {
+        router.push("/text-summarize");
+      }
+
+  }, [state?.success, router])
   return (
     <div
       className={cn(
