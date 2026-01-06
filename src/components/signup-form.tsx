@@ -50,7 +50,7 @@ export function SignupForm({
     e.preventDefault();
     try {
       setLoading(true)
-      const response = await axios.post(`${BASE_URL}/api/sign-up`, form)
+      const response = await axios.post(`${BASE_URL}/api/sign-up`, form, {withCredentials: true})
       if (form.password !== form.confirmPassword) {
         setError({...error, confirmPassword: "Passwords do not match"})
         return
