@@ -1,74 +1,165 @@
-'use client'
-import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
+"use client";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 import {
   Field,
   FieldDescription,
   FieldGroup,
   FieldLabel,
   FieldSeparator,
-} from "@/components/ui/field"
-import { Input } from "@/components/ui/input"
-import Auth from './assets/auth.jpeg'
-import Image from "next/image"
-import Link from "next/link"
-import { useState } from "react"
-import axios from "axios"
-import { useRouter } from "next/navigation"
+} from "@/components/ui/field";
+import { Input } from "@/components/ui/input";
+import Auth from "./assets/auth.jpeg";
+import Image from "next/image";
+import Link from "next/link";
+import { useActionState, useEffect, useState } from "react";
+import axios from "axios";
+import { useRouter } from "next/navigation";
+import { coreAPI } from "../../lib/coreAPI";
+import { CheckCircle, XCircle } from "lucide-react";
+type FormState = {
+  fieldErrors?: {
+    username?: string;
+    email?: string;
+    password?: string;
+    confirmPassword?: string;
+  };
+  formError?: string;
+  success?: boolean;
+};
 
+const initialState: FormState = {};
+async function signUpAction(
+  prevState: FormState,
+  formData: FormData
+): Promise<FormState> {
+  const username = formData.get("username") as string;
+  const email = formData.get("email") as string;
+  const password = formData.get("password") as string;
+  const confirmPassword = formData.get("confirmPassword") as string;
+
+  const fieldErrors: FormState["fieldErrors"] = {};
+  if (!username) fieldErrors.username = "Username is required";
+  if (!email) fieldErrors.email = "Email is required";
+  if (!password) fieldErrors.password = "Password is required";
+  if (!confirmPassword)
+    fieldErrors.confirmPassword = "Confirm Password is required";
+  if (password !== confirmPassword)
+    fieldErrors.confirmPassword = "Passwords do not match";
+
+  if (Object.keys(fieldErrors).length > 0) {
+    return { fieldErrors };
+  }
+  try {
+    await coreAPI.post("/api/sign-up", {
+      username,
+      email,
+      password,
+    });
+
+    return {
+      success: true,
+    };
+  } catch (error: any) {
+    const data = error?.response?.data;
+
+    if (data?.fieldErrors) {
+      return {
+        fieldErrors: data.fieldErrors,
+      };
+    }
+    return {
+      formError:
+        error?.response?.data?.message || "Something went wrong during sign up",
+    };
+  }
+}
 export function SignupForm({
   className,
   ...props
 }: React.ComponentProps<"div">) {
-  // http://localhost:3000/undefined/api/sign-up
-  const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
   const router = useRouter();
-  const [form, setForm] = useState(
-    {
-      username: "",
-      email: "",
-      password: "",
-      confirmPassword: "",
+  const [state, action, isPending] = useActionState(signUpAction, initialState);
+  const [showError, setShowError] = useState(true);
+
+  useEffect(() => {
+    if (state.formError) {
+      setShowError(true);
     }
-  );
-
-  const [error, setError] = useState({
-    username: "",
-    email: "",
-    password: "",
-    confirmPassword: "",
-  })
-
-  const [loading, setLoading] = useState(false)
-
-  const handleOnChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setForm({...form, [e.target.name]: e.target.value})
-  }
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    try {
-      setLoading(true)
-      const response = await axios.post(`${BASE_URL}/api/sign-up`, form, {withCredentials: true})
-      if (form.password !== form.confirmPassword) {
-        setError({...error, confirmPassword: "Passwords do not match"})
-        return
-      }
-      if(response.status === 201) {
-        setLoading(false)
-        router.push('/sign-in')
-      }
-    } catch (error) {
-      console.log("Sign-up error", error);
-    }
+  }, []);
+  if (state.success) {
+    router.push("/sign-in");
   }
 
   return (
-    <div className={cn("flex flex-col gap-6 items-center justify-center h-screen", className)} {...props}>
+    <div
+      className={cn(
+        "flex flex-col gap-6 items-center justify-center h-screen",
+        className
+      )}
+      {...props}
+    >
+      {state.formError && showError && (
+        <div
+          id="alert-border-4"
+          className="flex sm:items-center p-4 mb-4 text-sm text-fg-warning bg-warning-soft border-t-4 border-warning-subtle"
+          role="alert"
+        >
+          <svg
+            className="w-4 h-4 shrink-0 mt-0.5 md:mt-0"
+            aria-hidden="true"
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            fill="none"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M10 11h2v5m-2 0h4m-2.592-8.5h.01M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
+            />
+          </svg>
+          <span className="sr-only">Info</span>
+          <div className="ms-2 text-sm ">{state.formError}</div>
+          <button
+            type="button"
+            onClick={() => setShowError(false)}
+            className="ms-auto -mx-1.5 -my-1.5 rounded focus:ring-2 focus:ring-warning-medium p-1.5 hover:bg-warning-medium inline-flex items-center justify-center h-8 w-8 shrink-0"
+            data-dismiss-target="#alert-border-4"
+            aria-label="Close"
+          >
+            <span className="sr-only">Close</span>
+            <svg
+              className="w-4 h-4"
+              aria-hidden="true"
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              fill="none"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke="currentColor"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M6 18 17.94 6M18 18 6.06 6"
+              />
+            </svg>
+          </button>
+        </div>
+      )}
       <Card className="overflow-hidden p-0 w-[70%] flex">
         <CardContent className="grid p-0 md:grid-cols-2">
-          <form className="p-6 md:p-8" style={{ padding: '20px' }}>
+          <form
+            className="p-6 md:p-8"
+            style={{ padding: "20px" }}
+            action={action}
+          >
             <FieldGroup>
               <div className="flex flex-col items-center gap-2 text-center">
                 <h1 className="text-2xl font-bold">Create your account</h1>
@@ -76,62 +167,102 @@ export function SignupForm({
                   Enter your email below to create your account
                 </p>
               </div>
-              <Field>
+
+              <Field className="relative">
                 <FieldLabel htmlFor="name">User Name</FieldLabel>
                 <Input
-                  style={{ padding: '12px' }}
+                  style={{ padding: "12px" }}
                   id="name"
                   type="text"
                   placeholder="Jhon Vicktor"
-                  required
                   name="username"
-                  value={form.username}
-                  onChange={handleOnChange}
+                  className={cn(
+                    "input-base",
+                    state.fieldErrors?.username &&
+                      "ring-1 ring-red-400 border-red-400 focus-visible:border-red-600 focus-visible:ring-red-500/50 focus-visible:ring-[3px]"
+                  )}
                 />
+                {state.fieldErrors?.username && (
+                  <p className="text-red-500 text-sm mt-1">
+                    {state.fieldErrors.username}
+                  </p>
+                )}
               </Field>
-              <Field>
+              <Field className="relative">
                 <FieldLabel htmlFor="email">Email</FieldLabel>
                 <Input
-                  style={{ padding: '12px' }}
+                  style={{ padding: "12px" }}
                   id="email"
                   type="email"
                   name="email"
-                  value={form.email}
                   placeholder="m@example.com"
-
-                  required
-                  onChange={handleOnChange}
+                  className={cn(
+                    "input-base",
+                    state.fieldErrors?.email &&
+                      "ring-1 ring-red-400 border-red-400 focus-visible:border-red-600 focus-visible:ring-red-500/50 focus-visible:ring-[3px]"
+                  )}
                 />
-                <FieldDescription>
-                  We&apos;ll use this to contact you. We will not share your
-                  email with anyone else.
-                </FieldDescription>
+                {state.fieldErrors?.email && (
+                  <FieldDescription className="text-red-500 text-sm mt-1">
+                    {state.fieldErrors.email}
+                  </FieldDescription>
+                )}
               </Field>
 
               <Field>
                 <Field className="grid grid-cols-2 gap-4">
-                  <Field>
+                  <Field className="relative">
                     <FieldLabel htmlFor="password">Password</FieldLabel>
-                    <Input style={{ padding: '12px' }} id="password" name="password" value={form.password} type="password" required  onChange={handleOnChange}/>
+                    <Input
+                      style={{ padding: "12px" }}
+                      id="password"
+                      name="password"
+                      type="password"
+                      className={cn(
+                        "input-base",
+                        state.fieldErrors?.password &&
+                          "ring-1 ring-red-400 border-red-400 focus-visible:border-red-600 focus-visible:ring-red-500/50 focus-visible:ring-[3px]"
+                      )}
+                    />
+                    {state.fieldErrors?.password && (
+                      <p className="text-red-500 text-sm mt-1">
+                        {state.fieldErrors.password}
+                      </p>
+                    )}
                   </Field>
-                  <Field>
+                  <Field className="relative">
                     <FieldLabel htmlFor="confirm-password">
                       Confirm Password
                     </FieldLabel>
-                    <Input style={{ padding: '12px' }} id="confirm-password" name="confirmPassword" value={form.confirmPassword}type="password" required onChange={handleOnChange} />
-                    {error.confirmPassword && (<FieldDescription className="text-red-500">{error.confirmPassword}</FieldDescription>
+                    <Input
+                      style={{ padding: "12px" }}
+                      id="confirm-password"
+                      name="confirmPassword"
+                      type="password"
+                      className={cn(
+                        "input-base",
+                        state.fieldErrors?.confirmPassword &&
+                          "ring-1 ring-red-400 border-red-400 focus-visible:border-red-600 focus-visible:ring-red-500/50 focus-visible:ring-[3px]"
+                      )}
+                    />
+                    {state.fieldErrors?.confirmPassword && (
+                      <p className="text-red-500 text-sm mt-1">
+                        {state.fieldErrors.confirmPassword}
+                      </p>
                     )}
                   </Field>
                 </Field>
-                <FieldDescription>
+
+                {/* <FieldDescription>
                   Must be at least 8 characters long.
-                </FieldDescription>
+                </FieldDescription> */}
               </Field>
               <Field>
-                <Button type="submit" onClick={handleSubmit}>{loading ? "Loading...." : "Create Account"}</Button>
+                <Button type="submit">Create Account</Button>
               </Field>
               <FieldSeparator className="*:data-[slot=field-separator-content]:bg-card">
-                Or continue with <span className="text-red-500">[ Currently Disabled ]</span>
+                Or continue with{" "}
+                <span className="text-red-500">[ Currently Disabled ]</span>
               </FieldSeparator>
               <Field className="grid grid-cols-3 gap-4">
                 <Button variant="outline" type="button" disabled>
@@ -177,5 +308,5 @@ export function SignupForm({
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }

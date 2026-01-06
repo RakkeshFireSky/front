@@ -2,16 +2,21 @@
 import axios from "axios";
 import { useRouter } from "next/navigation";
 import { createContext, useContext, useEffect, useState } from "react"
+import { coreAPI } from "../../lib/coreAPI";
 
 const AuthContext = createContext<{ user: any; loading: boolean, logout: () => void } | null>(null)
 export const AuthProvider = ({children} : {children: React.ReactNode}) => {
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(false)
     const router = useRouter();
-    const logout = () => {
-        localStorage.removeItem('token')
-        setUser(null)
-        router.push('/sign-in')
+    const logout = async () => {
+        try {
+            await coreAPI.post('/api/logout', {}, {withCredentials: true})
+            router.push('/sign-in')
+            router.refresh()
+        } catch (error) {
+            console.log("Logout error:", error);
+        }
     }
     useEffect(() => {
         const fetchUser  = async () => {
