@@ -153,7 +153,7 @@ export function SignupForm({
           </button>
         </div>
       )}
-      <Card className="overflow-hidden p-0 w-[70%] flex">
+      <Card className="overflow-hidden p-0 w-[90%] md:w-[70%] flex">
         <CardContent className="grid p-0 md:grid-cols-2">
           <form
             className="p-6 md:p-8"
@@ -210,7 +210,7 @@ export function SignupForm({
               </Field>
 
               <Field>
-                <Field className="grid grid-cols-2 gap-4">
+                <Field className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <Field className="relative">
                     <FieldLabel htmlFor="password">Password</FieldLabel>
                     <Input

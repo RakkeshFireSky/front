@@ -84,7 +84,7 @@ export function SigninForm({
       )}
       {...props}
     >
-      <Card className="overflow-hidden p-0 w-[70%] flex">
+      <Card className="overflow-hidden p-0 w-[90%] md:w-[70%] flex">
         <CardContent className="grid p-0 md:grid-cols-2">
           <form
             className="p-6 md:p-8"
