@@ -9,6 +9,7 @@ import { LoaderIcon, LogOut } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
+import { coreAPI } from "../../../../lib/coreAPI";
 export default function TextSummarize() {
   const [text, setText] = useState("");
   const [summary, setSummary] = useState("");
@@ -19,10 +20,7 @@ export default function TextSummarize() {
   const handleSummarize = async () => {
     try {
       setLoading(true);
-      const response = await axios.post(
-        "http://localhost:5000/api/text/text_summary",
-        { text }
-      );
+      const response = await coreAPI.post("/api/text/text_summary", { text });
       setSummary(response.data.Summary);
     } catch (error) {
       console.log(error);
