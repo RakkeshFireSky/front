@@ -11,7 +11,7 @@ export const AuthProvider = ({children} : {children: React.ReactNode}) => {
     const router = useRouter();
     const logout = async () => {
         try {
-            await coreAPI.post('/api/logout', {}, {withCredentials: true})
+            await axios.post('/api/logout', {}, {withCredentials: true})
             router.push('/sign-in')
             router.refresh()
         } catch (error) {
