@@ -48,7 +48,7 @@ async function signInAction(
   }
 
   try {
-    await coreAPI.post("/api/sign-in", {
+    await axios.post("/api/sign-in", {
       email,
       password,
     });
